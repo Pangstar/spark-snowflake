@@ -200,6 +200,7 @@ private[snowflake] class JDBCWrapper {
 //        case BinaryType => "BLOB"
           case TimestampType => "TIMESTAMP"
           case DateType => "DATE"
+          case ArrayType(_,_) => "VARIANT"
           case t: DecimalType => s"DECIMAL(${t.precision},${t.scale})"
           case _ =>
             throw new IllegalArgumentException(s"Don't know how to save $field of type ${field.name} to Snowflake")
@@ -303,7 +304,7 @@ private[snowflake] class JDBCWrapper {
     // Snowflake-todo: Verify all types.
     val answer = sqlType match {
       // scalastyle:off
-      case java.sql.Types.ARRAY => null
+      case java.sql.Types.ARRAY => ArrayType.asInstanceOf[DataType]
       case java.sql.Types.BIGINT => if (signed) { LongType } else { DecimalType(20, 0) }
 //      case java.sql.Types.BINARY        => BinaryType
 //      case java.sql.Types.BIT           => BooleanType // @see JdbcDialect for quirks
